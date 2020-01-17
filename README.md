@@ -1,2 +1,2 @@
 # PCA-plot-example
-How to create PCA plot in Python.
+PCA analyis and visualization on a gene expression dataset in Python.
