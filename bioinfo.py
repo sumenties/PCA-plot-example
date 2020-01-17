@@ -1,5 +1,4 @@
-## NOTE: This is Python 3 code.
-## PCA plots can be used to determine the gene expression levels from different samples.
+## Make sure to install and import necessary modules first
 
 import pandas as pd
 import numpy as np
@@ -8,35 +7,32 @@ from sklearn.decomposition import PCA
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
 
-# Data Generation Code
+# Loading the data
+# Note: This is already a preprocessed data.
+
+data = pd.read_csv('./pca_example_dataset.csv')
+
 ## In this example, the data is in a data frame called data.
-## Columns are individual samples (i.e. cells)
-## Rows are measurements taken for all the samples (i.e. genes)
-## Just for the sake of the example, we'll use made up data...
-genes = ['gene' + str(i) for i in range(1,101)]
+## Columns represent different samples (i.e. cells) that may have been under specific conditions to alter gene expression.
+## Rows represent genes from these different samples.
 
-wt = ['wt' + str(i) for i in range(1,6)]
-ko = ['ko' + str(i) for i in range(1,6)]
-
-data = pd.DataFrame(columns=[*wt, *ko], index=genes)
-
-for gene in data.index:
-    data.loc[gene,'wt1':'wt5'] = np.random.poisson(lam=rd.randrange(10,1000), size=5)
-    data.loc[gene,'ko1':'ko5'] = np.random.poisson(lam=rd.randrange(10,1000), size=5)
-
+# Checking the head (First 5 columns) and shape of the data.
 print(data.head())
 print(data.shape)
 
-# Perform PCA on the data
+# Drop geneid before applying PCA as it has no significance in statistics.
+d = data.drop("geneid", 1)
+d.head() # checking if geneid is removed or not.
+d.shape
 
 # First center and scale the data
-scaled_data = preprocessing.scale(data.T)
+scaled_data = preprocessing.scale(d.T)
 
 pca = PCA()  # create a PCA object
-pca.fit(scaled_data)  # do the math
+pca.fit(scaled_data)  # do the statistics
 pca_data = pca.transform(scaled_data)  # get PCA coordinates for scaled_data
 
-# Draw a scree plot and a PCA plot:
+# Drawing a scree plot and a PCA plot:
 
 # The following code constructs the Scree plot
 per_var = np.round(pca.explained_variance_ratio_ * 100, decimals=1)
@@ -48,8 +44,8 @@ plt.xlabel('Principal Component')
 plt.title('Scree Plot')
 plt.show()
 
-# the following code makes a fancy looking plot using PC1 and PC2
-pca_df = pd.DataFrame(pca_data, index=[*wt, *ko], columns=labels)
+# the following code creates PC1 and PC2 in a 2D PCA plot:
+pca_df = pd.DataFrame(pca_data, columns=labels)
 
 plt.scatter(pca_df.PC1, pca_df.PC2)
 plt.title('My PCA Graph')
@@ -66,16 +62,12 @@ plt.show()
 ## get the name of the top 10 measurements (genes) that contribute
 ## most to pc1.
 ## first, get the loading scores
-loading_scores = pd.Series(pca.components_[0], index=genes)
+loading_scores = pd.Series(pca.components_[0])
+
 ## now sort the loading scores based on their magnitude
 sorted_loading_scores = loading_scores.abs().sort_values(ascending=False)
 
 # get the names of the top 10 genes
 top_10_genes = sorted_loading_scores[0:10].index.values
-
-## print the gene names and their scores (and +/- sign)
-print(loading_scores[top_10_genes])<span id = "mce_SELREST_start" style = "overflow:hidden;line-height:0;" ></span>
-
-
-
+print(top_10_genes)
 
